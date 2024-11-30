@@ -8,11 +8,15 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from dataclasses import dataclass
 
+from src.components.data_transformation import DataTransformation
+from src.components.data_transformation import DataTransformationConfig   
 #dataclass is a decorator, if you are only defining variables then you can use data class, but if you have other 
 #function, need init
 @dataclass
 class DataIngestionConfig:
     train_data_path: str=os.path.join("artifacts","train.csv") #all data will be saved in artifacts path, filename train.csv
+    #os.path dynamically adjust / or \ based on os
+    #output => artifacts\train.csv
     test_data_path: str=os.path.join("artifacts","test.csv") #all data will be saved in artifacts path
     raw_data_path: str=os.path.join("artifacts","data.csv") #all data will be saved in artifacts path
 
@@ -60,4 +64,8 @@ class DataIngestion:
 
 if __name__ == "__main__":
     obj=DataIngestion()
-    obj.initiate_data_ingestion()
+    train_data,test_data = obj.initiate_data_ingestion()
+
+
+    data_transformation = DataTransformation() #It will call this -> self.data_transformation_config
+    data_transformation.initiate_data_transformation(train_data,test_data)
