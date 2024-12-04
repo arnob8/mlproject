@@ -11,6 +11,7 @@ from src.exception import CustomException
 
 import dill
 from sklearn.metrics import r2_score
+from sklearn.model_selection import GridSearchCV
 
 #Creating the function save_object that will be called in data_transformation , can be used
 #elsewhere too
@@ -29,33 +30,35 @@ def save_object(file_path,obj):
 
 
 #Evaluation of Models
-def evaluate_models(X_train,y_train,X_test,y_test,models):
+def evaluate_models(X_train, y_train,X_test,y_test,models,param):
     try:
         report = {}
 
         for i in range(len(list(models))):
-            model = list(models.values())[i] 
-            #models.values => returns all the values(model objects) from the dict
-            #list(models.values()) => converts these values into a list
-            #list(models.values())[i] retrieves the model object at the i-th position.
+            model = list(models.values())[i]
+            para=param[list(models.keys())[i]]
 
-            model.fit(X_train,y_train) # Train Modelon Training data
+            gs = GridSearchCV(model,para,cv=3)
+            gs.fit(X_train,y_train)
 
-            #Predict for both Train and test
+            model.set_params(**gs.best_params_)
+            model.fit(X_train,y_train)
+
+            #model.fit(X_train, y_train)  # Train model
+
             y_train_pred = model.predict(X_train)
+
             y_test_pred = model.predict(X_test)
-            #Calculate R2 Score for Train and Test
-            train_model_score = r2_score(y_train,y_train_pred)
-            test_model_score = r2_score(y_test,y_test_pred)
+
+            train_model_score = r2_score(y_train, y_train_pred)
+
+            test_model_score = r2_score(y_test, y_test_pred)
 
             report[list(models.keys())[i]] = test_model_score
-            #Explanation =>
-            #report[key] = value: Adds an entry to the dictionary, where:
-            #key is the model name (list(models.keys())[i]).
-            #value is the model's test performance score (test_model_score)
+
         return report
-        
+
     except Exception as e:
-        raise CustomException(e,sys)
+        raise CustomException(e, sys)
 
         
