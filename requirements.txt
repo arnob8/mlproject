@@ -7,4 +7,5 @@ catboost
 xgboost
 dill
 sklearn
+flask
 # -e . comment this out as we dont want to build package everytime
